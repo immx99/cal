@@ -14,6 +14,12 @@
   <link href="the-datepicker.css" rel="stylesheet" />
   <script src="the-datepicker.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
   <script>
 	function copyToClipboard(element) {
 	  var $temp = $("<input>");
@@ -186,23 +192,28 @@
 		//echo var_dump($hariArr);
 		$timeInFloat=(float) substr($jam, 0,2) + ((float) substr($jam, 3,2))/60 + ((float) substr($jam, 5))/3600;
 		
-		$malam="";
 		if ($timeInFloat>18.00) {
-			$tglHijriyahArr=tglHijriyah($DV, "18:01:00");
+			$tglHijriyahArr=tglHijriyah($DV+1, "10:001:00");
+			$tglHijriyah=$tglHijriyahArr[0];
+			$tglHijriyahArr=tglHijriyah($DV, $jam);
 			$pssBulan=$tglHijriyahArr[1];
 			// $pssBulan=$tglHijriyahArr[1] . "/" . $tglHijriyahArr[2];
-			$DV+=1;
-			$malam="Malam";
-			$tglJawaArr=tglJawa($DV, "18:01:00");
-			$tglJawa=$tglJawaArr[0];
-			$pssBulanFloat=$tglHijriyahArr[5];
-			if (substr($tglHijriyahArr[0],0,2)=="29" && $pssBulanFloat<2) {
-				$tglHijriyahArr= "30 " . substr($tglHijriyahArr,3);
-			} else {
-				$tglHijriyahArr=tglHijriyah($DV, "18:01:00");
-				$tglHijriyah=$tglHijriyahArr[0];
-			}
 			
+			
+			$tglJawaArr=tglJawa($DV+1, "10:00:00");
+			$tglJawa=$tglJawaArr[0];
+			$hariArr= hari($DV+1);
+			//$sprt=strpos($arr_hari,":");
+			//$hari_psrn=substr($arr_hari,0,$sprt);
+			$hariPsrn="Malam " . $hariArr[0];
+			//$neptu=	substr($arr_hari,$sprt+1);
+			$neptu=$hariArr[1];
+			$hariPsrnJawa="Malam " . $hariArr[2];
+			
+			$wuku=wuku($DV+1);
+			$padewan=padewan($DV+1);
+			$sadwara=sadwara($DV+1);
+			$sangawara=sangawara($DV+1);
 			
 			
 		} else {
@@ -212,10 +223,21 @@
 			$tglHijriyah=$tglHijriyahArr[0];
 			$tglJawaArr=tglJawa($DV, $jam);
 			$tglJawa=$tglJawaArr[0];
-			
+			$malam="";
 			if ($timeInFloat<3.00) {
 				$malam="Malam";
 			}
+			$hariArr= hari($DV);
+			//$sprt=strpos($arr_hari,":");
+			//$hari_psrn=substr($arr_hari,0,$sprt);
+			$hariPsrn=$malam . " " . $hariArr[0];
+			//$neptu=	substr($arr_hari,$sprt+1);
+			$neptu=$hariArr[1];
+			$hariPsrnJawa=$malam . " " . $hariArr[2];
+			$wuku=wuku($DV);
+			$padewan=padewan($DV);
+			$sadwara=sadwara($DV);
+			$sangawara=sangawara($DV);
 		}
 		// echo "Date Valu= " . $DV;
 		// $tglHijriyahArr=tglHijriyah($DV);
@@ -231,17 +253,8 @@
 			$tglHijriyah=substr($tglHijriyah,0,2)+1 . substr($tglHijriyah,2);
 		}
 
-		$hariArr= hari($DV);
-		//$sprt=strpos($arr_hari,":");
-		//$hari_psrn=substr($arr_hari,0,$sprt);
-		$hariPsrn=$malam . " " . $hariArr[0];
-		//$neptu=	substr($arr_hari,$sprt+1);
-		$neptu=$hariArr[1];
-		$hariPsrnJawa=$malam . " " . $hariArr[2];
-		$wuku=wuku($DV);
-		$padewan=padewan($DV);
-		$sadwara=sadwara($DV);
-		$sangawara=sangawara($DV);
+		
+	
 		
 		
 		$zodiac=zodiac($vtgl);
@@ -252,7 +265,7 @@
 		//$namaThnJawa=substr($arrTglJawa,$sprt+1);
   		$pmArr=pranataMangsa($vtgl);
 		$tanggalPM=$pmArr[0];
-		$pmValue=$pmArr[1];
+		$pmValue=$pmArr[0];
 		$tglCina=tglCina($DV, $thn);
 		// $tglCina=$tglCinaArr[0];
 		// $blnCina=$tglCinaArr[3];
@@ -288,7 +301,7 @@
 		echo "<tr> <td align='left'>Sangawara/Padangon    		</td><td>:</td><td align='left'>$sangawara</td></tr>";
 		echo "<tr> <td align='left'>Bulan (Kawi)   				</td><td>:</td><td align='left'>$blnKawi</td></tr>";
 		echo "<tr> <td align='left'>Tanggal Jawa   				</td><td>:</td><td align='left'>$tglJawa</td></tr>";
-		echo "<tr> <td align='left'>Pranata Mangsa   			</td><td>:</td><td align='left'>$tanggalPM</td></tr>";
+		echo "<tr> <td align='left'>Pranata Mangsa   			</td><td>:</td><td align='left'><a href='#' data-toggle='tooltip' title='pranata mangsa'>$tanggalPM</a></td></tr>";
 		echo "<tr> <td align='left'>Wuku           				</td><td>:</td><td align='left'>$wuku</td></tr>";
 		echo "<tr> <td align='left'>Tahun/Windu    				</td><td>:</td><td align='left'>$namaThnJawa</td></tr>";	
 		echo "<tr> <td align='left'>Tanggal Hijriyah   			</td><td>:</td><td align='left'>$tglHijriyah</td></tr>";
@@ -297,12 +310,12 @@
 		echo "<tr> <td align='left'>Tanggal Ibrani      		</td><td>:</td><td align='left'>$tglIbrani</td></tr>"; 
 		echo "<tr> <td align='left'>Tanggal Tionghoa     		</td><td>:</td><td align='left'>$tglCina</td></tr>"; 
  	    echo "<tr> <td align='left'>Shio         				</td><td>:</td><td align='left'>$shio</td></tr>";
-		echo "<tr> <td align='left'>PM Value         			</td><td>:</td><td align='left'>$pmValue</td></tr>";
+		// echo "<tr> <td align='left'>PM Value         			</td><td>:</td><td align='left'>$pmValue</td></tr>";
 
  	    //echo "<tr> <td align='left'>Sumber         				</td><td>:</td><td align='left'>$sumber</td></tr>";
  	    echo "</table>";
 
- 	    $calender= $vtgl . "; Tabuh: " . $jam . "; Wayah " . $wayah ."; " . $hariPsrn . "/" . $hariPsrnJawa . "; Neptu: " . $neptu . "; Sadwara/Paringkelan: " . $sadwara . "; Hastawara/Padewan: " . $padewan . "; Sangawara/Padangon: " . $sangawara . "; Bulan (Kawi): " . $blnKawi . "; " . $tglJawa . "; Pranata Mangsa: " . $tanggalPM . "; Wuku: " . $wuku . "; Tahun/Windu: " . $namaThnJawa . "; " . $tglHijriyah . "; Posisi Bulan: " . $pssBulan . "; Zodiac: " . $zodiac . "; Shio: " . $shio; 
+ 	    $calender= $vtgl . "; Tabuh: " . $jam . "; Wayah " . $wayah ."; " . $hariPsrn . "/" . $hariPsrnJawa . "; Neptu: " . $neptu . "; Sadwara/Paringkelan: " . $sadwara . "; Hastawara/Padewan: " . $padewan . "; Sangawara/Padangon: " . $sangawara . "; Bulan (Kawi): " . $blnKawi . "; " . $tglJawa . "; Pranata Mangsa: " . $PM . "; Wuku: " . $wuku . "; Tahun/Windu: " . $namaThnJawa . "; " . $tglHijriyah . "; Posisi Bulan: " . $pssBulan . "; Zodiac: " . $zodiac . "; Shio: " . $shio; 
  	    //$cal="; sumber: <a href='http://src.great-site.net/pngl/pngl.php'>http://src.great-site.net/pngl/pngl.php";
  	    //$cal="; sumber: <a href='http://src.infinityfreeapp.com/pngl/pngl.php'>http://src.infinityfreeapp.com/pngl/pngl.php";
  	    $sumber="; sumber: <a href='http://src.great-site.net/pngl/pngl.php'>http://src.great-site.net/pngl/pngl.php";
@@ -313,7 +326,7 @@
  	    
  	    
 
- 	    $now=date('d-m-Y H:i:s ');
+ 	    // $now=date('d-m-Y H:i:s ');
  	    $clientIP=get_client_ip();
 
 
@@ -331,7 +344,7 @@
 			}
 		  }
 		  $insert="insert into application_access (APPLICATION_NAME, ACCESS_DATE, LOCATION, IP_ADDRESS, TO_FIND) values " .
-		  "('http://src.great-site.net/pngl','$now','$location','$clientIP','$hariPsrn $vtanggal $jam ')";
+		  "('http://src.great-site.net/pngl',now(),'$location','$clientIP','$hariPsrn $vtanggal $jam ')";
 		//   // echo $insert;
 		  $conn->query($insert);  
 		  $conn->close();
